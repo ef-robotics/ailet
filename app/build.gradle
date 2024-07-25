@@ -34,6 +34,7 @@ android {
         jvmTarget = '1.8'
     }
     buildFeatures {
+        buildConfig = true
         compose true
     }
     composeOptions {
@@ -63,10 +64,18 @@ dependencies {
     androidTestImplementation libs.androidx.ui.test.junit4
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
-    implementation libs.retrofit
-    implementation libs.retrofit.gson
-    implementation libs.retrofit.scalars
+    implementation(libs.androidxAppcompat)
+    implementation libs.material
+    implementation libs.compose.ui
+    implementation libs.compose.material3
+    implementation libs.camera.core
+    implementation libs.camera.camera2
+    implementation libs.camera.lifecycle
+    implementation libs.camera.view
+    implementation libs.camera.extensions
     implementation libs.okhttp
-    implementation libs.glide
-    implementation libs.imagepicker
+    implementation libs.okhttp.logging.interceptor
+    implementation libs.okhttp.urlconnection
+    implementation libs.retrofit
+    implementation libs.converter.gson
 }
