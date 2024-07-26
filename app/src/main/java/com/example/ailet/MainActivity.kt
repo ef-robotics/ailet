@@ -36,7 +36,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import androidx.compose.foundation.lazy.LazyColumn
 import java.util.concurrent.Executors
+import androidx.compose.material3.*
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+
 private const val CAMERA_PERMISSION_REQUEST_CODE = 1001
 
 class MainActivity : ComponentActivity() {
@@ -120,8 +125,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             AiletTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
+                    Column(modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()) {
                         CameraPreview()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        LogScreen(logMessages = logMessages)
                     }
                 }
             }
@@ -159,27 +168,31 @@ class MainActivity : ComponentActivity() {
         val context = LocalContext.current
 
         AndroidView(factory = {
-            SurfaceView(context).apply {
-                holder.addCallback(object : SurfaceHolder.Callback {
-                    override fun surfaceCreated(holder: SurfaceHolder) {
-                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                            setupCamera(holder)
-                        } else {
-                            ActivityCompat.requestPermissions(
-                                context as ComponentActivity,
-                                arrayOf(Manifest.permission.CAMERA),
-                                CAMERA_PERMISSION_REQUEST_CODE
-                            )
+                SurfaceView(context).apply {
+                    holder.addCallback(object : SurfaceHolder.Callback {
+                        override fun surfaceCreated(holder: SurfaceHolder) {
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                                setupCamera(holder)
+                            } else {
+                                ActivityCompat.requestPermissions(
+                                    context as ComponentActivity,
+                                    arrayOf(Manifest.permission.CAMERA),
+                                    CAMERA_PERMISSION_REQUEST_CODE
+                                )
+                            }
                         }
-                    }
 
-                    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
+                        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
 
-                    override fun surfaceDestroyed(holder: SurfaceHolder) {}
-                })
-            }
+                        override fun surfaceDestroyed(holder: SurfaceHolder) {}
+                    })
+                }
         })
     }
+
+
+
+
 
     private fun setupCamera(surfaceHolder: SurfaceHolder) {
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -317,7 +330,10 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun DefaultPreview() {
         AiletTheme {
-            CameraPreview()
+            Column {
+                CameraPreview()
+                LogScreen(logMessages)
+            }
         }
     }
 }
