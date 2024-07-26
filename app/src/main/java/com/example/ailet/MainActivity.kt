@@ -72,9 +72,10 @@ class MainActivity : ComponentActivity() {
             FileOutputStream(imageFile).use { output ->
                 output.write(bytes)
             }
-            
+            logMessages.add("Image saved: ${imageFile.absolutePath}")
             imageFile
         } catch (e: IOException) {
+            logMessages.add("Error saving image: ${e.message}")
             Log.e(TAG, "Error saving image", e)
             null
         }
@@ -95,16 +96,19 @@ class MainActivity : ComponentActivity() {
             .addHeader("accept", "application/json")
             .addHeader("Content-Type", "multipart/form-data")
             .build()
-
+        logMessages.add("Uploading image: ${imageFile.name}")
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                logMessages.add("Image upload failed: ${e.message}")
                 Log.e(TAG, "Image upload failed", e)
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
+                    logMessages.add("Upload successful!")
                     Log.d(TAG, "Upload successful!")
                 } else {
+                    logMessages.add("Upload failed: ${response.code}")
                     Log.d(TAG, "Upload failed: ${response.code}")
                 }
             }
@@ -135,8 +139,10 @@ class MainActivity : ComponentActivity() {
             Button(
                 onClick = {
                     if (startRecording) {
+                        logMessages.add("Stopped recording")
                         stopRecording()
                     } else {
+                        logMessages.add("Started recording")
                         startRecording()
                     }
                     startRecording = !startRecording
@@ -208,8 +214,10 @@ class MainActivity : ComponentActivity() {
                 }
             }, handler)
         } catch (e: CameraAccessException) {
+            logMessages.add("Error accessing camera: ${e.message}")
             Log.e(TAG, "Error accessing camera", e)
         } catch (e: SecurityException) {
+            logMessages.add("Security exception when accessing camera: ${e.message}")
             Log.e(TAG, "Security exception when accessing camera", e)
         }
     }
@@ -239,6 +247,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     override fun onConfigureFailed(session: CameraCaptureSession) {
+                        logMessages.add("Failed to configure camera")
                         Log.e(TAG, "Failed to configure camera")
                     }
                 }
@@ -246,6 +255,7 @@ class MainActivity : ComponentActivity() {
 
             cameraDevice.createCaptureSession(sessionConfiguration)
         } catch (e: CameraAccessException) {
+            logMessages.add("Error starting camera preview: ${e.message}")
             Log.e(TAG, "Error starting camera preview", e)
         }
     }
@@ -274,6 +284,7 @@ class MainActivity : ComponentActivity() {
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
             captureSession.capture(captureBuilder.build(), object : CameraCaptureSession.CaptureCallback() {}, handler)
         } catch (e: CameraAccessException) {
+            logMessages.add("Error capturing still picture: ${e.message}")
             Log.e(TAG, "Error capturing still picture", e)
         }
     }
@@ -289,11 +300,19 @@ class MainActivity : ComponentActivity() {
                     SurfaceViewCamera() // Ensure the camera setup happens within Compose
                 }
             } else {
+                logMessages.add("Camera permission denied")
                 Log.e(TAG, "Camera permission denied")
             }
         }
     }
-
+    @Composable
+    fun LogScreen(logMessages: List<String>) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            logMessages.forEach { message ->
+                Text(text = message)
+            }
+        }
+    }
     @Preview(showBackground = true)
     @Composable
     fun DefaultPreview() {
